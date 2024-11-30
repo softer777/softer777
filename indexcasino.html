@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рулетка</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .roulette-table {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            grid-template-rows: 1fr;
+            gap: 10px 10px;
+            width: 1000px;
+            height: 120px;
+            padding: 10px;
+            border: 10px solid #34495e;
+            border-radius: 10px;
+            background-color: #1f2c35;
+        }
+
+        .roulette-table .number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 15px;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .roulette-table .number:hover {
+            background-color: #34495e;
+        }
+
+        .roulette-table .green {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .roulette-table .red {
+            background-color: red;
+            color: white;
+        }
+
+        .roulette-table .black {
+            background-color: black;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        #history {
+            margin-top: 20px;
+            font-size: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #resetButton {
+            position: fixed; 
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #resetButton:hover {
+            background-color: #c0392b;
+        }
+
+/* Стиль для кнопок в выводе */
+.output-number {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;  /* Плавный переход для тени */
+    margin: 5px;
+}
+
+/* Цвета кнопок */
+.output-number.green {
+    background-color: #2ecc71;
+    color: white;
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.7), 0 0 20px rgba(46, 204, 113, 0.5);
+}
+
+.output-number.red {
+    background-color: red;
+    color: white;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.7), 0 0 20px rgba(231, 76, 60, 0.5);
+}
+
+.output-number.black {
+    background-color: black;
+    color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Эффект при наведении: добавляем только свечение */
+.output-number.green:hover {
+    box-shadow: 0 0 15px rgba(46, 204, 113, 1), 0 0 25px rgba(46, 204, 113, 0.7); /* Ярче свечение при наведении */
+}
+
+.output-number.red:hover {
+    box-shadow: 0 0 15px rgba(231, 76, 60, 1), 0 0 25px rgba(231, 76, 60, 0.7); /* Ярче свечение при наведении */
+}
+
+.output-number.black:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 1), 0 0 25px rgba(0, 0, 0, 0.7); /* Ярче свечение при наведении */
+}
+
+        .x2-button {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: gold;
+            color: black;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            animation: glow 1.5s infinite alternate; /* Добавление анимации свечения */
+        }
+
+        /* Эффект свечения */
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 10px gold, 0 0 20px gold, 0 0 30px gold;
+                background-color: gold;
+            }
+            100% {
+                box-shadow: 0 0 20px #ffcc00, 0 0 30px #ffcc00, 0 0 40px #ffcc00;
+                background-color: #ffcc00; /* Слегка измененный золотой оттенок */
+            }
+        }
+
+        /* Эффект при наведении */
+        .x2-button:hover {
+            background-color: #f39c12;
+            animation: none; /* Останавливаем анимацию при наведении */
+            box-shadow: 0 0 15px #f39c12, 0 0 25px #f39c12, 0 0 35px #f39c12; /* Усиленный эффект свечения при hover */
+        }
+        /* Стиль для кнопки "Пояснить" */
+        #explainButton {
+            background-color: #e74c3c; /* Красный цвет */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #explainButton:hover {
+            background-color: #c0392b; /* Темно-красный при наведении */
+        }
+
+        /* Стиль для блока с пояснением */
+        .explanation {
+            background-color: #34495e;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px auto; /* Отступы сверху и снизу */
+            width: 70%; /* Меньше ширина, чтобы карточка не была слишком широкой */
+            display: none;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        /* Класс для отображения блока с пояснением */
+        .explanation.show {
+            display: block;
+            max-height: 500px; /* Можете регулировать размер */
+            padding: 20px;
+        }
+
+        /* Общий стиль для текста внутри пояснения */
+        .explanation p {
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+      <!-- Шапка страницы -->
+    <div class="header">
+        <h1>Casino Helper   <button id="explainButton">FAQ</button></h1>
+    </div>
+
+    <!-- Блок с пояснением -->
+    <div id="explanation" class="explanation">
+        <p>
+            Добро пожаловать в помощник для игры в рулетку! Здесь вы можете отслеживать
+            связки чисел, выпавших на рулетке. После каждого числа отображается следующее,
+            которое выпало в предыдущий раз, и если такая связка повторяется, будет показан
+            значок с числом повторений. Это поможет вам отслеживать тренды и делать более
+            обоснованные ставки. Удачи!
+        </p>
+    </div>
+    <div id="rouletteNumbers" class="roulette-table"></div>
+
+    <div id="output"></div>
+    <div id="history"></div>
+
+    <button id="resetButton">Сбросить записи</button>
+
+    <script>
+        const explainButton = document.getElementById('explainButton');
+        const explanation = document.getElementById('explanation');
+
+        // Обработчик клика на кнопку "Пояснить"
+        explainButton.addEventListener('click', () => {
+            explanation.classList.toggle('show'); // Показать/скрыть пояснение
+        });
+        const colors = {
+            0: 'green',
+            1: 'red', 2: 'black', 3: 'red', 4: 'black', 5: 'red', 6: 'black', 7: 'red', 8: 'black', 9: 'red',
+            10: 'black', 11: 'red', 12: 'black', 13: 'red', 14: 'black', 15: 'red', 16: 'black', 17: 'red',
+            18: 'black', 19: 'red', 20: 'black', 21: 'red', 22: 'black', 23: 'red', 24: 'black', 25: 'red',
+            26: 'black', 27: 'red', 28: 'black', 29: 'red', 30: 'black', 31: 'red', 32: 'black', 33: 'red',
+            34: 'black', 35: 'red', 36: 'black',
+            '00': 'green'
+        };
+
+        const columns = [
+            ['0', '00'],
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+            [10, 11, 12],
+            [13, 14, 15],
+            [16, 17, 18],
+            [19, 20, 21],
+            [22, 23, 24],
+            [25, 26, 27],
+            [28, 29, 30],
+            [31, 32, 33],
+            [34, 35, 36]
+        ];
+
+        const rouletteNumbers = document.getElementById('rouletteNumbers');
+        let prevNumber = null;
+        let pairCounts = JSON.parse(localStorage.getItem('pairCounts')) || {};
+
+        function updateHistory() {
+            const historyDiv = document.getElementById('history');
+            historyDiv.innerHTML = ''; // Очистить историю
+
+            for (const pair in pairCounts) {
+                const pairData = JSON.parse(pair);
+                const count = pairCounts[pair];
+                // Удаляем вывод истории для удобства
+            }
+        }
+
+        function trackNumberPairs(num) {
+            let output = document.getElementById('output');
+            output.innerHTML = ''; // Очистить вывод
+
+            if (prevNumber !== null) {
+                let pair = [prevNumber, num];
+
+                if (pairCounts[JSON.stringify(pair)]) {
+                    pairCounts[JSON.stringify(pair)]++;
+                } else {
+                    pairCounts[JSON.stringify(pair)] = 1;
+                }
+
+                output.innerHTML += `Записана связка: ${pair[0]} -> ${pair[1]}<br>`;
+                localStorage.setItem('pairCounts', JSON.stringify(pairCounts)); // Сохранить в Local Storage
+            }
+
+            let found = false;
+            for (let key in pairCounts) {
+                let pair = JSON.parse(key);
+                if (pair[0] === num) {
+                    // Здесь создаем кнопку, как на рулетке
+                    const nextNumber = pair[1];
+                    const button = createButton(nextNumber);
+                    output.innerHTML += `После числа ${pair[0]} падает ${button.outerHTML}`;
+
+                    // Создание кнопки xN, если связка повторилась больше 1 раза
+                    if (pairCounts[key] > 1) {
+                        const xButton = createXButton(pairCounts[key]);
+                        output.innerHTML += xButton.outerHTML;  // Добавляем кнопку xN в одну строку
+                    }
+
+                    output.innerHTML += '<br>';
+
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                output.innerHTML += `После числа ${num} нет связки.<br>`;
+            }
+
+            prevNumber = num;
+            updateHistory(); // Обновить историю
+        }
+
+        function createButton(number) {
+            // Функция для создания кнопки с правильным цветом
+            const color = colors[number];
+            const button = document.createElement('span');
+            button.classList.add('output-number', color);
+            button.textContent = number === '00' ? '00' : number;
+            return button;
+        }
+
+        function createXButton(count) {
+            // Функция для создания кнопки xN, где N - это количество повторений
+            const button = document.createElement('span');
+            button.classList.add('x2-button');
+            button.textContent = `x${count}`;
+            return button;
+        }
+
+        columns.forEach((column) => {
+            let columnDiv = document.createElement('div');
+            columnDiv.classList.add('roulette-column');
+
+            column.reverse(); // Инвертируем порядок чисел
+
+            column.forEach((number) => {
+                let button = document.createElement('div');
+                let color = colors[number];
+                button.classList.add('number', color);
+                button.textContent = number === '00' ? '00' : number;
+                button.onclick = () => trackNumberPairs(number);
+                columnDiv.appendChild(button);
+            });
+
+            rouletteNumbers.appendChild(columnDiv);
+        });
+
+        // Обработчик сброса данных
+        document.getElementById('resetButton').addEventListener('click', () => {
+            localStorage.removeItem('pairCounts'); // Очистить Local Storage
+            pairCounts = {}; // Очистить локальную переменную
+            updateHistory(); // Обновить отображение истории
+        });
+
+        // Загружаем историю из Local Storage при старте страницы
+        updateHistory();
+    </script>
+
+</body>
+</html>
